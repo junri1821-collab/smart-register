@@ -1,0 +1,225 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no" />
+  <title>スマートレジ</title>
+  <style>
+    * { box-sizing: border-box; }
+    body {
+      margin: 0;
+      font-family: -apple-system, BlinkMacSystemFont, "Hiragino Kaku Gothic ProN",
+                   "Yu Gothic", sans-serif;
+      background: #f6f7fb;
+      color: #222;
+      -webkit-tap-highlight-color: transparent;
+    }
+    .wrap {
+      max-width: 900px;
+      margin: 0 auto;
+      padding: 18px;
+    }
+    h1 {
+      text-align: center;
+      font-size: 34px;
+      margin: 8px 0 18px;
+    }
+    .products {
+      display: grid;
+      grid-template-columns: repeat(2, 1fr);
+      gap: 14px;
+    }
+    .product {
+      border: 3px solid #222;
+      background: white;
+      border-radius: 18px;
+      padding: 18px 10px;
+      min-height: 150px;
+      font-size: 26px;
+      font-weight: 700;
+      cursor: pointer;
+      touch-action: manipulation;
+    }
+    .product:active {
+      transform: scale(0.98);
+      background: #eef2f7;
+    }
+    .emoji {
+      display: block;
+      font-size: 54px;
+      margin-bottom: 8px;
+    }
+    .price {
+      display: block;
+      font-size: 24px;
+      margin-top: 8px;
+    }
+    .cart {
+      margin-top: 20px;
+      background: white;
+      border: 3px solid #222;
+      border-radius: 18px;
+      padding: 16px;
+    }
+    .cart h2 {
+      margin: 0 0 12px;
+      font-size: 26px;
+    }
+    #items {
+      min-height: 80px;
+      font-size: 22px;
+      line-height: 1.7;
+    }
+    .empty {
+      color: #666;
+    }
+    .total {
+      margin-top: 14px;
+      padding-top: 14px;
+      border-top: 3px solid #222;
+      text-align: center;
+      font-size: 36px;
+      font-weight: 800;
+    }
+    .buttons {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 12px;
+      margin-top: 16px;
+    }
+    .action {
+      border: 0;
+      border-radius: 16px;
+      padding: 18px 8px;
+      font-size: 24px;
+      font-weight: 800;
+      cursor: pointer;
+      touch-action: manipulation;
+    }
+    .undo { background: #e5e7eb; }
+    .reset { background: #ffd6d6; }
+    .checkout {
+      width: 100%;
+      margin-top: 12px;
+      background: #d9f7df;
+      border: 3px solid #222;
+      border-radius: 16px;
+      padding: 20px 10px;
+      font-size: 28px;
+      font-weight: 800;
+      cursor: pointer;
+    }
+    #message {
+      text-align: center;
+      font-size: 30px;
+      font-weight: 800;
+      margin-top: 16px;
+      min-height: 44px;
+    }
+    @media (max-width: 520px) {
+      h1 { font-size: 28px; }
+      .product { font-size: 22px; min-height: 135px; }
+      .emoji { font-size: 46px; }
+      .price { font-size: 21px; }
+      .total { font-size: 32px; }
+    }
+  </style>
+</head>
+<body>
+  <div class="wrap">
+    <h1>🛒 スマートレジ</h1>
+
+    <div class="products">
+      <button class="product" onclick="addItem('おかし', 100, '🍪')">
+        <span class="emoji">🍪</span>
+        おかし
+        <span class="price">100円</span>
+      </button>
+
+      <button class="product" onclick="addItem('ジュース', 120, '🥤')">
+        <span class="emoji">🥤</span>
+        ジュース
+        <span class="price">120円</span>
+      </button>
+
+      <button class="product" onclick="addItem('パン', 150, '🍞')">
+        <span class="emoji">🍞</span>
+        パン
+        <span class="price">150円</span>
+      </button>
+
+      <button class="product" onclick="addItem('アイス', 130, '🍨')">
+        <span class="emoji">🍨</span>
+        アイス
+        <span class="price">130円</span>
+      </button>
+    </div>
+
+    <section class="cart">
+      <h2>えらんだ商品</h2>
+      <div id="items" class="empty">まだ商品をえらんでいません</div>
+
+      <div class="total">
+        ごうけい　<span id="total">0</span>円
+      </div>
+
+      <div class="buttons">
+        <button class="action undo" onclick="undoLast()">ひとつ もどす</button>
+        <button class="action reset" onclick="resetCart()">ぜんぶ けす</button>
+      </div>
+
+      <button class="checkout" onclick="checkout()">おかいけい</button>
+      <div id="message"></div>
+    </section>
+  </div>
+
+  <script>
+    let cart = [];
+
+    function addItem(name, price, emoji) {
+      cart.push({ name, price, emoji });
+      document.getElementById("message").textContent = "";
+      render();
+    }
+
+    function undoLast() {
+      if (cart.length > 0) cart.pop();
+      document.getElementById("message").textContent = "";
+      render();
+    }
+
+    function resetCart() {
+      cart = [];
+      document.getElementById("message").textContent = "";
+      render();
+    }
+
+    function checkout() {
+      const total = cart.reduce((sum, item) => sum + item.price, 0);
+      if (cart.length === 0) {
+        document.getElementById("message").textContent = "商品をえらんでね";
+      } else {
+        document.getElementById("message").textContent = "ごうけい " + total + "円です";
+      }
+    }
+
+    function render() {
+      const itemsEl = document.getElementById("items");
+      const totalEl = document.getElementById("total");
+
+      if (cart.length === 0) {
+        itemsEl.className = "empty";
+        itemsEl.textContent = "まだ商品をえらんでいません";
+      } else {
+        itemsEl.className = "";
+        itemsEl.innerHTML = cart
+          .map((item, i) => `${i + 1}. ${item.emoji} ${item.name}　${item.price}円`)
+          .join("<br>");
+      }
+
+      const total = cart.reduce((sum, item) => sum + item.price, 0);
+      totalEl.textContent = total;
+    }
+  </script>
+</body>
+</html>
